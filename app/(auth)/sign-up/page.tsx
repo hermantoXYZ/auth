@@ -46,7 +46,11 @@ export default function SignUp () {
                     router.push('/sign-in')
                 },
                 onError: (ctx) => {
-                    toast.error(ctx.error.message)
+                    toast.error(ctx.error.message);
+                    form.setError('email', {
+                      type: 'manual',
+                      message: ctx.error.message
+                    })
                 },
             });
 
@@ -55,7 +59,6 @@ export default function SignUp () {
             }
         } catch (error) {
             toast.error("Something went wrong!")
-            console.error(error)
         }
     }
 
