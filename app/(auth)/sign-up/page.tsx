@@ -35,11 +35,11 @@ export default function SignUp () {
                 callbackURL: "/sign-in"
             },
             {
-                // onRequest: () => {
-                //     toast.loading("Creating your account...", {
-                //         duration: 20,
-                //     })
-                // },
+                onRequest: () => {
+                    toast.loading("Creating your account...", {
+                        duration: 20,
+                    })
+                },
                 onSuccess: () => {
                     form.reset()
                     toast.success("Account created successfully!")

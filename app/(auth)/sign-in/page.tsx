@@ -9,6 +9,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formSchema, signInFormSchema } from "@/lib/auth-schema";
+import { toast } from "sonner"
+import { authClient } from "@/lib/auth-client";
 
 
 export default function SignIn () {
@@ -21,12 +23,32 @@ export default function SignIn () {
     },
   })
  
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof signInFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
+  
+  async function onSubmit(values: z.infer<typeof signInFormSchema>) {
+    try {
+        const { email, password } = values;
+        const { data, error } = await authClient.signIn.email({
+            email,
+            password,
+            callbackURL: "/dashboard"
+        },
+        {
+            onSuccess: () => {
+                form.reset()
+            },
+            onError: (ctx) => {
+                toast.error(ctx.error.message)
+            },
+        });
+
+        if (error) {
+            throw error;
+        }
+    } catch (error) {
+        toast.error("Something went wrong!")
+    }
+}
+
 
     return (
         <Card className="w-full max-w-md mx-auto">
