@@ -9,26 +9,55 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formSchema } from "@/lib/auth-schema";
-
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 
 export default function SignUp () {
-    // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-    },
-  })
+    const router = useRouter()
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            password: "",
+        },
+    })
  
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const { name, email, password } = values;
+            const { data, error } = await authClient.signUp.email({
+                email,
+                password,
+                name,
+                callbackURL: "/sign-in"
+            },
+            {
+                // onRequest: () => {
+                //     toast.loading("Creating your account...", {
+                //         duration: 20,
+                //     })
+                // },
+                onSuccess: () => {
+                    form.reset()
+                    toast.success("Account created successfully!")
+                    router.push('/sign-in')
+                },
+                onError: (ctx) => {
+                    toast.error(ctx.error.message)
+                },
+            });
+
+            if (error) {
+                throw error;
+            }
+        } catch (error) {
+            toast.error("Something went wrong!")
+            console.error(error)
+        }
+    }
 
     return (
         <Card className="w-full max-w-md mx-auto">
